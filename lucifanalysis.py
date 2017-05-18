@@ -19,11 +19,9 @@ from Bio.Align.Applications import MuscleCommandline
 import sys
 from outliers import smirnov_grubbs as grubbs
 import scipy as sp 
-import matplotlib
-import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
-from matplotlib.backends.backend_pdf import PdfPages
-#matplotlib.style.use('ggplot')
+import sys
+import argparse
+
 
 
 ##Goal:  take raw luciferase readings from a text file and create an analysis report
@@ -36,62 +34,66 @@ from matplotlib.backends.backend_pdf import PdfPages
 ########################################################################################################################################################
 
 
+parser = argparse.ArgumentParser(description="""Takes Dual Glow luciferase readings from a file, also containing the legend and the plate plan, 
+							consolidates all replicates no matter their number into a report for each condition, and generate a PDF report with the figures""")
+parser.add_argument("-lu","--luciffile",
+					help="Luciferase readings in a .txt file", default= None)
 
 
-x = int(raw_input("Input filenames in Terminal (1) or in Filenames.txt (2)?"))
+args = parser.parse_args()
+
+if args.luciffile == None:
+	luciffile = raw_input("Raw file input file:")
+else: 
+	luciffile = args.luciffile
+
+
+
+
 dogrubbs = raw_input("Use Grubbs test to remove potential outliers? (y/n) : ")
 
-if x == 1: ## Terminal USer input for filenames
-	luciffile = raw_input("Results File (Luciferase Read):")
-	
 
 
-	luciflegendfile = raw_input("Legend File Name:")
-	luciffile = raw_input("Dual Glo Luciferase Readings File:")
-	outputfile2 = raw_input("Save Report as:")
-	pdfreport = raw_input("Save PDF Report as:")
-elif x ==2: # Filenames in textfile "Filenames.txt"
-	filelistbare = []
-	filelist = open("Filenames.txt", "rw+")
-	filelistlist = filelist.readlines()
-	for i in filelistlist:
-		a = i
-		a = a.replace("\n", "").replace("\r", "")
-		filelistbare.append(a)
-	luciflegendfile = filelistbare[0].split(":")[1]
-	luciffile = filelistbare[1].split(":")[1]
-	outputfile2 = filelistbare[2].split(":")[1]
-	pdfreport= filelistbare[3].split(":")[1]
-else: #Return error, abort script
-	print str(x) + " is an invalid choice. Aborting."
-	sys.exit()
-	
-filelist.close()
+rawtemp = open(luciffile, "rw+")
 
-
-
-def luciferaseplate(readfile, legendfile):
-	""" Takes a Renilla and firefly dual glo luciferase experiment and generates a report with computed values""" 
-##### 
-	return "Prout"
-
-
-###Read legend file
-legend = open(luciflegendfile, "rw+")
-plan = []
-plantemp = legend.readlines()
-for i in plantemp: 
+raw = []
+for i in rawtemp.readlines():
 	a = i
 	a = a.replace("\n", "").replace("\r", "")
-	plan.append(a)
+	raw.append(a)
 
+
+
+###################33###Read METADATA
+inputfile = raw[0].split("\t")[1]
+expdate = raw[1].split("\t")[1]
+cellline = raw[2].split("\t")[1]
+outputfile2 = raw[3].split("\t")[1]
+
+
+####################Section to retrieve lucif and renilla reads
+fireflylist = []
+renillalist = []
+
+for i in raw[12:20]:
+	splitlist = i.split("\t")
+	fireflylist.append(splitlist[1:13])
+	renillalist.append(splitlist[16:28])
+
+
+###############section to retrieve plan and legend
+plan = []
+for i in raw[22:]:
+	plan.append(i)
 
 planlist = []
-for j in plan[2:10]: #Remove perioheral wells
+for j in plan[2:10]: #Remove peripheral wells
 	a = j.replace("X", "0")
 
+ 
+	planlist.append(a.split("\t")[1:12])
 
-	planlist.append(a.split("\t")[1:])
+#################################3
 
 plannp = np.array(planlist, dtype="int32")
 plandict = {}
@@ -100,7 +102,12 @@ plandict = {}
 legtemp= plan[11:len(plan)]  
 leg = []
 for i in legtemp: 
-	leg.append(i.split("\t"))
+	leg.append(i.split("\t")[0:6])
+
+# ########
+
+
+
 
 
 promoterdict = {}
@@ -110,9 +117,9 @@ testdict = {}
 
 for i in leg:
 	try:
-		if (i[3]) == "E":
+		if (i[4]) == "E":
 			promoterdict[i[0]] = i[2]
-		elif (i[3]) == "C":
+		elif (i[4]) == "C":
 			ctrldict[i[2]] = i[0]
 		else:
 			pass
@@ -127,31 +134,16 @@ expdict = {}
 controldict = {}
 try: 
 	for j in leg:
-		legdict[int(j[0])] = [j[1], j[2],j[3],j[4]]
-		legdictrn[int(j[0])] = [j[1], j[2],j[3],j[4]]
+		legdict[int(j[0])] = [j[1], j[2],j[3],j[4], j[5]]
+		legdictrn[int(j[0])] = [j[1], j[2],j[3],j[4],j[5]]
 		expdict[int(j[0])] = [j[2]]
 		controldict[int(j[0])] = [j[3]]
 except IndexError:
 	pass
 
-legend.close()
 
 
 
-rawreads = open(luciffile, "rw+")
-lucif = []
-luciflist = []
-fireflylist = []
-renillalist = []
-luciftemp = rawreads.readlines()
-for i in luciftemp: 
-	a = i
-	a = a.replace("\n", "").replace("\r", "")
-	lucif.append(a)
-for j in lucif[5:13]:
-	splitlist = j.split("\t")
-	fireflylist.append(splitlist[2:14])
-	renillalist.append(splitlist[17:29])
 
 
 ffnp = np.array(fireflylist)
@@ -172,7 +164,7 @@ ffheader = maxcount * ["Firefly_Repl"] + ["Firefly_Average"] + ["Firefly_St.Dev"
 rnheader = maxcount * ["Renilla_Repl"] + ["Renilla_Average"] + ["Renilla_St.Dev"]
 ratioheader = maxcount * ["RLU"] + ["RLU_Average"] + ["RLU_St.Dev"]
 fcheader = maxcount * ["Fold_Change"] + ["FC_Average"] + ["FC_St.Dev"]
-header = ["Condition", "Promoter", "Exp_vs_Control", "Reference_Control"] + ffheader + rnheader + ratioheader + fcheader
+header = ["Condition", "TFBS", "Promoter", "Exp_vs_Control", "Reference_Control"] + ffheader + rnheader + ratioheader + fcheader
 
 
 uniquelist = list(unique)
@@ -241,11 +233,11 @@ sdlistcrn = [] #make a list of standard deviations for controls and for experime
 sdlistern = []
 
 for i in xrange(len(legdf)): ###detect any outlier with either Firefly values or Renilla values, null both values if the case for that well, and average the remaining valid wells. 
-	dfempty = pd.DataFrame.transpose(pd.DataFrame(np.nan, index=[i+1], columns=headfflist[4:]))
-	dfempty2 = pd.DataFrame.transpose(pd.DataFrame(np.nan, index=[i+1], columns=headfflist[4:]))
+	dfempty = pd.DataFrame.transpose(pd.DataFrame(np.nan, index=[i+1], columns=headfflist[5:]))
+	dfempty2 = pd.DataFrame.transpose(pd.DataFrame(np.nan, index=[i+1], columns=headfflist[5:]))
 	nature = legdf.iloc[int(i),headfflist[2]]
-	data= legdf.iloc[int(i),headfflist[4:]]
-	datarn= legdfrn.iloc[int(i),headfflist[4:]]
+	data= legdf.iloc[int(i),headfflist[5:]]
+	datarn= legdfrn.iloc[int(i),headfflist[5:]]
 	data[data<0] = np.nan
 	datarn[datarn<0] = np.nan
 
@@ -283,12 +275,14 @@ for i in xrange(len(legdf)): ###detect any outlier with either Firefly values or
 		sdlistern.append(datarn.std())
 
 
+
+
 for i in xrange(len(legdf)): ###detect any outlier with either Firefly values or Renilla values, null both values if the case for that well, and average the remaining valid wells. 
-	dfempty = pd.DataFrame.transpose(pd.DataFrame(np.nan, index=[i+1], columns=headfflist[4:]))
-	dfempty2 = pd.DataFrame.transpose(pd.DataFrame(np.nan, index=[i+1], columns=headfflist[4:]))
+	dfempty = pd.DataFrame.transpose(pd.DataFrame(np.nan, index=[i+1], columns=headfflist[5:]))
+	dfempty2 = pd.DataFrame.transpose(pd.DataFrame(np.nan, index=[i+1], columns=headfflist[5:]))
 	nature = legdf.iloc[int(i),headfflist[2]]
-	data= legdf.iloc[int(i),headfflist[4:]]
-	datarn= legdfrn.iloc[int(i),headfflist[4:]]
+	data= legdf.iloc[int(i),headfflist[5:]]
+	datarn= legdfrn.iloc[int(i),headfflist[5:]]
 	if nature == "C":
 		sdlist = sdlistc
 		sdlistrn = sdlistern
@@ -317,9 +311,12 @@ for i in xrange(len(legdf)): ###detect any outlier with either Firefly values or
 			datarn[datarn >0] = np.nan
 			print "Problematic replicates #%s Renilla" % i+1
 
+
+
 legdff = pd.DataFrame.from_dict(ffdict).transpose()
 legdfrnf = pd.DataFrame.from_dict(rndict).transpose()
-const = legdf.iloc[:,:4]
+const = legdf.iloc[:,:5]
+
 
 legdf = pd.concat([const,legdff], axis=1)
 fmask = pd.isnull(legdf)
@@ -333,10 +330,13 @@ legdfrn = legdfrn.where(~fmask, other=np.nan)
 legdf["Firefly_Average"] = legdff.mean(axis=1)
 legdf["Firefly_St.Dev"] = legdff.std(axis=1)
 
+
 legdfrn["Renilla_Average"] = legdfrnf.mean(axis=1)
 legdfrn["Renilla_St.Dev"] = legdfrnf.std(axis=1)
 
-legdf = pd.concat([legdf,legdfrn.iloc[:,4:]], axis=1)
+
+
+legdf = pd.concat([legdf,legdfrn.iloc[:,5:]], axis=1)
 
 
 
@@ -348,9 +348,9 @@ ratiodict = {}
 
 
 
-dfempty3 = pd.DataFrame(np.nan, index=lenlist, columns=headfflist[4:])
+dfempty3 = pd.DataFrame(np.nan, index=lenlist, columns=headfflist[5:])
 
-for i in headfflist[4:]:
+for i in headfflist[5:]:
 	#print legdff[i]
 	
 	dfempty3[i]= legdff[i]/legdfrnf[i] * 1000
@@ -370,19 +370,21 @@ ratiodf["RLU_St.Dev"] = ratiodf.std(axis=1)
 
 
 
-ratiodf = pd.concat([legdf.iloc[:,0:4],ratiodf], axis=1)
+ratiodf = pd.concat([legdf.iloc[:,0:5],ratiodf], axis=1)
 
-legdf = pd.concat([legdf,ratiodf.iloc[:,4:]], axis=1)
-
-controldf = ratiodf[ratiodf.iloc[:,2] == "C"]
-rludict = pd.Series(controldf.RLU_Average.values, index=controldf.iloc[:,3]).to_dict()
-ratiodf["RLU_CTRL"] = ratiodf.iloc[:,3].map(rludict)
+legdf = pd.concat([legdf,ratiodf.iloc[:,5:]], axis=1)
 
 
 
+controldf = ratiodf[ratiodf.iloc[:,3] == "C"]
 
-fchangedf = pd.DataFrame(np.nan, index=lenlist, columns=headfflist[4:])  # set up a dataframe for fold changes
-for i in headfflist[4:]:
+
+rludict = pd.Series(controldf.RLU_Average.values, index=controldf.iloc[:,4]).to_dict()
+ratiodf["RLU_CTRL"] = ratiodf.iloc[:,4].map(rludict)
+
+
+fchangedf = pd.DataFrame(np.nan, index=lenlist, columns=headfflist[5:])  # set up a dataframe for fold changes
+for i in headfflist[5:]:
 	#print legdff[i]
 	
 	fchangedf[i] = (ratiodf[i] / ratiodf["RLU_CTRL"])
@@ -397,102 +399,98 @@ legdf.columns = header
 
 
 
+legdf["Date"] = expdate
+legdf["Cell line"] = cellline
+
+
+
 legdf.to_csv(outputfile2,sep="\t")
 
 
 
-pp = PdfPages(pdfreport)
-fig, axes = plt.subplots(nrows=2, ncols=2)
-fig.set_canvas(plt.gcf().canvas)
-plt.suptitle(pdfreport)
+pdfanswer = 0
+while pdfanswer == 0:
+	askpdf = raw_input("Generate a PDF Report of experiment report? (Y/N):  ")
+	if askpdf.upper() == "Y":
+		pdfreport = outputfile2.replace(".txt", ".pdf")
+		print "MAKING PDF..."
+		import matplotlib
+		import matplotlib.pyplot as plt
+		import matplotlib.gridspec as gridspec
+		from matplotlib.backends.backend_pdf import PdfPages
+		sup = pdfreport  +"  " + cellline
 
-ax1 = legdf.plot(kind="bar", x="Condition", y="Firefly_Average" , yerr="Firefly_St.Dev",ax=axes[0,0],legend=None, color= "#fff68f") 
-ax1.set_xlabel("Condition")
-ax1.set_ylabel("Firefly")
-ax1.spines['right'].set_visible(False)
-ax1.spines['top'].set_visible(False)
-ax1.yaxis.set_ticks_position('left')
-ax1.xaxis.set_ticks_position('none')
+		pp = PdfPages(pdfreport)
+		fig, axes = plt.subplots(nrows=2, ncols=2)
+		fig.set_canvas(plt.gcf().canvas)
+		plt.suptitle(sup)
 
+		ax1 = axes[0,0]
+		ax2 = axes[1,0]
+		ax3 = axes[0,1]
+		ax4 = axes[1,1]
 
+		proms = list(set(legdf["Promoter"]))
 
-ax2 = legdf.plot(kind="bar", x="Condition", y="Renilla_Average" , yerr="Renilla_St.Dev",ax=axes[1,0],legend=None, color= "#ffed7c")  
-ax2.set_xlabel("Condition")
-ax2.set_ylabel("Renilla")
-ax2.ticklabel_format(style="sci", axis="y")
-ax2.spines['right'].set_visible(False)
-ax2.spines['top'].set_visible(False)
-ax2.yaxis.set_ticks_position('left')
-ax2.xaxis.set_ticks_position('none')
+		promlist = []
+		for i in proms:
+			promlist.append(legdf[legdf["Promoter"] == i])
+			
 
-
-
-ax3 = legdf.plot(kind="bar", x="Condition", y="RLU_Average" , yerr="RLU_St.Dev",ax=axes[0,1],legend=None, color= "#00ff00")
-ax3.set_xlabel("Condition")
-ax3.set_ylabel("RLU")
-ax3.spines['right'].set_visible(False)
-ax3.spines['top'].set_visible(False)
-ax3.yaxis.set_ticks_position('left')
-ax3.xaxis.set_ticks_position('none')
-
-
-ax4 = legdf.plot(kind="bar", x="Condition", y="FC_Average" , yerr="FC_St.Dev",ax=axes[1,1],legend=None,color= "#00ffff" )
-ax4.set_xlabel("Condition")
-ax4.set_ylabel("Fold Change")
-ax4.spines['right'].set_visible(False)
-ax4.spines['top'].set_visible(False)
-ax4.yaxis.set_ticks_position('left')
-ax4.xaxis.set_ticks_position('none')
+		legdf.plot(kind="bar", x="Condition", y="Firefly_Average" , yerr= "Firefly_St.Dev",ax=ax1,legend=None, color= "#fff68f", ylim=0) 
+		ax1.set_xlabel("Condition")
+		ax1.set_ylabel("Firefly")
+		ax1.spines['right'].set_visible(False)
+		ax1.spines['top'].set_visible(False)
+		ax1.yaxis.set_ticks_position('left')
+		ax1.xaxis.set_ticks_position('none')
 
 
-matplotlib.rcParams.update({'font.size': 6})
+		legdf.plot(kind="bar", x="Condition", y="Renilla_Average" , yerr="Renilla_St.Dev",ax=ax2,legend=None, color= "#ffed7c", ylim=0)  
+		ax2.set_xlabel("Condition")
+		ax2.set_ylabel("Renilla")
+		ax2.ticklabel_format(style="sci", axis="y")
+		ax2.spines['right'].set_visible(False)
+		ax2.spines['top'].set_visible(False)
+		ax2.yaxis.set_ticks_position('left')
+		ax2.xaxis.set_ticks_position('none')
 
 
+		legdf.plot(kind="bar", x="Condition", y="RLU_Average" , yerr="RLU_St.Dev",ax=ax3,legend=None, color= "#00ff00", ylim=0)
+		ax3.set_xlabel("Condition")
+		ax3.set_ylabel("RLU")
+		ax3.spines['right'].set_visible(False)
+		ax3.spines['top'].set_visible(False)
+		ax3.yaxis.set_ticks_position('left')
+		ax3.xaxis.set_ticks_position('none')
+
+		legdf.plot(kind="bar", x="Condition", y="FC_Average" , yerr="FC_St.Dev",ax=ax4,legend=None,color= "#00ffff", ylim=0 )
+		ax4.set_xlabel("Condition")
+		ax4.set_ylabel("Fold Change")
+		ax4.spines['right'].set_visible(False)
+		ax4.spines['top'].set_visible(False)
+		ax4.yaxis.set_ticks_position('left')
+		ax4.xaxis.set_ticks_position('none')
 
 
-plt.tight_layout()
-fig.subplots_adjust(top=0.95)
-
-pp.savefig()
-pp.close()
-
-# plt.show()
+		matplotlib.rcParams.update({'font.size': 6})
 
 
-# fig.ff = legdf.plot(kind="bar", x="Condition", y="FF_Average" , yerr="FF_Std.Dev")
-# fig.rn = legdf.plot(kind="bar", x="Condition", y="RN_Average" , yerr="RN_Std.Dev")
-# fig.rlu = legdf.plot(kind="bar", x="Condition", y="RLU_Average" , yerr="RLU_Std.Dev")
-# fig_fc = legdf.plot(kind="bar", x="Condition", y="FC_Average" , yerr="FC_Std.Dev")
-# fig_fc.
+		plt.tight_layout()
+		fig.subplots_adjust(top=0.95)
 
-# fig_fc.suptitle("boldfigure suptitle", fontsize=14, fontweight="bold")
-# ax = fig.add_subplot(111)
-# ax.set_title("Fold Change")
+		pp.savefig()
+		pp.close()
+		pdfanswer += 1
+		print "DONE"
 
-# ax.set_xlabel("Condition")
-# ax.set_ylabel("Fold Change")
+	elif askpdf.upper() == "N":
+		print "Not making PDF"
 
-# ax.plot([2], [1], "o")
+		print "DONE"
+		pdfanswer +=1
 
-# ax.axis([0,10,0,10])
-
-
-
-# controldf = legdf[legdf["Exp_vs_Control"] == "C"]
-
-
-
-# rludict = pd.Series(controldf.RLU_Average.values, index=controldf.Reference_Control).to_dict()
-
-
-
-
-# legdf["RLU_Ctrl"] = legdf["Reference_Control"].map(rludict)
-
-
-
-# legdf["Fold_Change"] = (legdf["RLU_Average"] / legdf["Reference_Control"].map(rludict))
-
-
-
+	else: 
+		print askpdf + " is not a valid answer. Try again"
+		pass
 
