@@ -1,0 +1,47 @@
+Filename:	docs/Input/template_AP170428.txt																											
+Date	04/28/2017																											
+Cell_type:	COS-7																											
+Output_report	docs/Reports/template_AP170428_report.txt																											
+																												
+																												
+																												
+																												
+																												
+																												
+After first injection					FIREFLY										After second injection					Renilla								
+	1	2	3	4	5	6	7	8	9	10	11	12				1	2	3	4	5	6	7	8	9	10	11	12	
+A	X	X	X	X	X	X	X	X	X	X	X	X	A		A	X	X	X	X	X	X	X	X	X	X	X	X	A
+B	X	1064.112667	322.9576667	708.235	492.2246667	1651.904667	1240.968333	338.9973333	X	X	X	X	B		B	X	23877.08533	21232.64667	34031.641	18070.434	31589.822	27479.952	15913.30767	X	X	X	X	B
+C	X	1501.691667	458.7916667	444.7116667	398.0536667	1464.767	1536.792	19.46733333	X	X	X	X	C		C	X	26642.94433	26160.95967	20964.721	29357.452	28949.69133	37965.858	17938.89033	X	X	X	X	C
+D	X	1307.542	458.749	454.5873333	402.4503333	1322.562667	1374.415	73.949	X	X	X	X	D		D	X	22321.59933	23824.99	26347.45	23493.44867	25960.17333	31951.78	12620.04033	X	X	X	X	D
+E	X	9190.199	2876.605333	3542.643	2989.545	7309.060333	9262.963333	390.5076667	X	X	X	X	E		E	X	41201.393	116226.9843	41854.71433	53086.87233	46074.078	51666.716	38586.55267	X	X	X	X	E
+F	X	10485.84533	2390.908	3506.908	3221.915667	9526.598	9325.766667	691.376	X	X	X	X	F		F	X	52062.79567	88167.47133	41064.08733	59751.15267	59169.48067	57363.49333	35689.93867	X	X	X	X	F
+G	X	11831.55633	1819.668333	3860.975667	2737.365333	8665.505667	8831.93	766.301	X	X	X	X	G		G	X	48144.00767	69731.51433	52106.93333	55160.94033	56558.85833	51592.03	25523.87033	X	X	X	X	G
+H	X	X	X	X	X	X	X	X	X	X	X	X	H		H	X	X	X	X	X	X	X	X	X	X	X	X	H
+																												
+																												
+Legend																												
+	1	2	3	4	5	6	7	8	9	10	11	12																
+A	X	X	X	X	X	X	X	X	X	X	X	X																
+B	X	1	2	3	4	5	6	7	X	X	X	X																
+C	X	1	2	3	4	5	6	7	X	X	X	X																
+D	X	1	2	3	4	5	6	7	X	X	X	X																
+E	X	8	9	10	11	12	13	14	X	X	X	X																
+F	X	8	9	10	11	12	13	14	X	X	X	X																
+G	X	8	9	10	11	12	13	14	X	X	X	X																
+H	X	X	X	X	X	X	X	X	X	X	X	X																
+id	condition	TF	promoter	exp_or_control	controlid																							
+1	G2 WT	GATA2	TFBS	C	1																							
+2	G2 CGSH	GATA2	TFBS	E	1																							
+3	G2 rs148942346	GATA2	TFBS	E	1																							
+4	G2 04H112 	GATA2	TFBS	E	1																							
+5	G2 rs78245253	GATA2	TFBS	E	1																							
+6	G2 rs140047487	GATA2	TFBS	E	1																							
+7	empty	GATA2	TFBS	E	1																							
+8	G2 WT	GATA2	LYL1-luc	C	8																							
+9	G2 CGSH	GATA2	LYL1-luc	E	8																							
+10	G2 rs148942346	GATA2	LYL1-luc	E	8																							
+11	G2 04H112 	GATA2	LYL1-luc	E	8																							
+12	G2 rs78245253	GATA2	LYL1-luc	E	8																							
+13	G2 rs140047487	GATA2	LYL1-luc	E	8																							
+14	empty	GATA2	LYL1-luc	E	8																							
