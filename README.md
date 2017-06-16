@@ -19,17 +19,17 @@ Script to analyze high-throughput luciferase experiments in an automated fashion
 
 ## Requirements
 
- * Python 2.7+
- * Have MAFFT command line tools installed . Can be obtained at http://mafft.cbrc.jp/alignment/software/
+* Python 2.7+
+* Have MAFFT command line tools installed . Can be obtained at http://mafft.cbrc.jp/alignment/software/
 
- * Python Libraries :
+* Python Libraries :
 
   1. Pandas (+ Numpy) 0.20.1+
   2. BioPython 1.69+
   3. Matplotlib 2.0.2
   4. outlier_utils 0.0.3+
 	
- * Luciferase Data. Example data [is included](docs/Input/template_AP170428.txt)
+* Luciferase Data. Example data [is included](docs/Input/template_AP170428.txt)
 
 
 ## Installation
