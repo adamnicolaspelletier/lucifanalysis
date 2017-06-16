@@ -8,10 +8,10 @@ Script to analyze high-throughput luciferase experiments in an automated fashion
 
 - [Requirements](#requirements)
 - [Installation](#installation)
-- [Information] (#information)
+- [Information](#information)
 - [Usage](#usage)
-- [In Development](#in development)
-- [Known Bugs](#known bugs)
+- [In Development](#in-development)
+- [Known Bugs](#known-bugs)
 - [Support](#support)
 - [Contributing](#contributing)
 
@@ -29,7 +29,7 @@ Script to analyze high-throughput luciferase experiments in an automated fashion
 	Matplotlib 2.0.2
 	outlier_utils 0.0.3+
 	
- * Luciferase Data. Example data [is included] (https://github.com/adamnicolaspelletier/lucifanalysis.git/template_AP170428.txt)
+ * Luciferase Data. Example data [is included](https://github.com/adamnicolaspelletier/lucifanalysis.git/template_AP170428.txt)
 
 
 ## Installation
@@ -55,7 +55,7 @@ Experiments are usually done in the 96 well plate format: and biologists analyze
 
 ## Usage
 
-Download the [template file] (https://github.com/adamnicolaspelletier/lucifanalysis.git/template_AP170428.txt) to fill in luciferase experimental values, as well as the plate plan and legend. It can be easily edited in any spreadsheet software, such as Microsoft Excel or Open Office. 
+Download the [template file](https://github.com/adamnicolaspelletier/lucifanalysis.git/template_AP170428.txt) to fill in luciferase experimental values, as well as the plate plan and legend. It can be easily edited in any spreadsheet software, such as Microsoft Excel or Open Office. 
 
 The script uses optional flags for personalized analysis: input file (-lu) followed by path to luciferase results and plan will analyze this file instead of the default template file. Accepts both relative and absolute paths
 
