@@ -9,12 +9,8 @@
 ### Version 2.0
 
 import numpy as np
-# import random
 import os
 import pandas as pd
-# from Bio import SeqIO
-# from StringIO import StringIO
-# from Bio import AlignIO
 import sys
 from outliers import smirnov_grubbs as grubbs
 import scipy as sp 
@@ -22,7 +18,6 @@ import argparse
 
 
 
-##Goal:  take raw luciferase readings from a text file and create an analysis report
 
 ########################################################################################################################################################
 ########################################################## USER INPUT ##################################################################################
@@ -272,8 +267,21 @@ if pdf == True:
 
 
 	pp = PdfPages(pdfreport)
-	fig, axes = plt.subplots(nrows=2, ncols=2)
-	fig.set_canvas(plt.gcf().canvas)
+	fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(10,10))
+	# fig.set_canvas(plt.gcf().canvas)
+	plt.style.use('seaborn-paper')
+	plt.rcParams['errorbar.capsize']=3
+
+	# plt.rcParams.update({'font.size': 5})
+	# plt.rc('font', size=5)          # controls default text sizes
+	# plt.rc('axes', titlesize=7)     # fontsize of the axes title
+	# plt.rc('axes', labelsize=7)    # fontsize of the x and y labels
+	# plt.rc('xtick', labelsize=5)    # fontsize of the tick labels
+	# plt.rc('ytick', labelsize=5)    # fontsize of the tick labels
+	# plt.rc('legend', fontsize=5)    # legend fontsize
+	# plt.rc('figure', titlesize=10)  # fontsize of the figure title
+
+
 	plt.suptitle(sup)
 
 	ax1 = axes[0,0]
@@ -289,6 +297,7 @@ if pdf == True:
 		
 
 	legdf.plot(kind="bar", x="Condition", y="Firefly_Average" , yerr= "Firefly_St.Dev",ax=ax1,legend=None, color= "#fff68f", ylim=0) 
+
 	ax1.set_xlabel("Condition")
 	ax1.set_ylabel("Firefly")
 	ax1.spines['right'].set_visible(False)
@@ -315,6 +324,7 @@ if pdf == True:
 	ax3.yaxis.set_ticks_position('left')
 	ax3.xaxis.set_ticks_position('none')
 
+
 	legdf.plot(kind="bar", x="Condition", y="FC_Average" , yerr="FC_St.Dev",ax=ax4,legend=None,color= "#00ffff", ylim=0 )
 	ax4.set_xlabel("Condition")
 	ax4.set_ylabel("Fold Change")
@@ -324,7 +334,7 @@ if pdf == True:
 	ax4.xaxis.set_ticks_position('none')
 
 
-	matplotlib.rcParams.update({'font.size': 5})
+	
 
 
 	plt.tight_layout()
