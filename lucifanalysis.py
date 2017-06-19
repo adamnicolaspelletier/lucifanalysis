@@ -268,18 +268,11 @@ if pdf == True:
 
 	pp = PdfPages(pdfreport)
 	fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(10,10))
-	# fig.set_canvas(plt.gcf().canvas)
+
 	plt.style.use('seaborn-paper')
 	plt.rcParams['errorbar.capsize']=3
 
-	# plt.rcParams.update({'font.size': 5})
-	# plt.rc('font', size=5)          # controls default text sizes
-	# plt.rc('axes', titlesize=7)     # fontsize of the axes title
-	# plt.rc('axes', labelsize=7)    # fontsize of the x and y labels
-	# plt.rc('xtick', labelsize=5)    # fontsize of the tick labels
-	# plt.rc('ytick', labelsize=5)    # fontsize of the tick labels
-	# plt.rc('legend', fontsize=5)    # legend fontsize
-	# plt.rc('figure', titlesize=10)  # fontsize of the figure title
+
 
 
 	plt.suptitle(sup)
