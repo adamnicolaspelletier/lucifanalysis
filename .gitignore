@@ -1,0 +1,11 @@
+#ignore testing dir
+docs/testing
+
+#Ignore R script
+lucifanalysis.R
+
+
+.DS_Store
+
+
+docs/Reports/*.pdf
